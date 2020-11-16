@@ -8,7 +8,7 @@
 {% endblock header %}
 
 {% block content %}
-  {% for post in posts %}
+  {% for post in data['posts'] %}
     <article class="post">
       <header>
         <div>
@@ -20,6 +20,7 @@
         {% endif %}
       </header>
       <p class="body">{{ post['body'] }}</p>
+      <img style="max-width: 100px;" src="{{ url_for('uploads.uploaded_file', filename=post['photo']) }}">
     </article>
     {% if not loop.last %}
       <hr>

@@ -5,11 +5,12 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     <label for="title">Title</label>
     <input name="title" id="title" value="{{ request.form['title'] }}" required>
     <label for="body">Body</label>
     <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
+    <input type="file" name="photo" id="photo" value="{{ request.form['photo'] }}" >
     <input type="submit" value="Save">
   </form>
 {% endblock %}
