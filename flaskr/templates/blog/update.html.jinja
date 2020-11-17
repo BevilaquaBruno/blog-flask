@@ -11,9 +11,19 @@
       value="{{ request.form['title'] or data['post']['title'] }}" required>
     <label for="body">Body</label>
     <textarea name="body" id="body">{{ request.form['body'] or data['post']['body'] }}</textarea>
-    <input type="file" name="photo" value="{{ data['img_path'] }} {{ request.form['photo'] or data['post']['photo'] }}" >
-    Actual File:
-      <img style="max-width: 100px;" src="{{ url_for('uploads.uploaded_file', filename= request.form['photo'] or data['post']['photo']) }}">
+      {% if request.form['photo'] %}
+        Actual File:
+        <img style="max-width: 100px;" src="{{ url_for('uploads.uploaded_file', filename= request.form['photo'] or data['post']['photo']) }}">
+        <span onclick="alert('Soon !')">Remover Foto</span>
+      {% else %}
+        {% if data['post']['photo'] %}
+          Actual File:
+          <img style="max-width: 100px;" src="{{ url_for('uploads.uploaded_file', filename= request.form['photo'] or data['post']['photo']) }}">
+          <span onclick="alert('Soon !')">Remover Foto</span>
+        {% else %}
+          <input type="file" name="photo" value="{{ data['img_path'] }} {{ request.form['photo'] or data['post']['photo'] }}" >
+        {% endif %}
+      {% endif %}
     <input type="submit" value="Save">
   </form>
   <hr>
