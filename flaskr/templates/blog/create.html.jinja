@@ -4,7 +4,7 @@
   <h1>{% block title %}New Post{% endblock title %}</h1>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/filepond.min.css') }}">
   <script type="text/javascript" src="{{ url_for('static', filename='javascript/filepond.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', filename='blog_create.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', jsfile='blog_create.js') }}"></script>
 {% endblock header %}
 
 {% block content %}

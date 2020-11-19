@@ -2,17 +2,18 @@ from flask import (
   Blueprint, flash, g, redirect, render_template, request, url_for
 )
 import os
-import uuid
+import shutil
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
+from flaskr.utils import (allowed_file)
 
 bp = Blueprint('blog', __name__)
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'upload/.')
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+UPLOAD_TEMP_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'upload/temp/.')
 
 @bp.route('/')
 def index():
@@ -28,8 +29,6 @@ def index():
   )
   return render_template('blog/index.html.jinja', data=data)
 
-def allowed_file(filename):
-  return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
@@ -37,24 +36,12 @@ def create():
   if request.method == 'POST':
     title = request.form['title']
     body = request.form['body']
-    photo = None
+    photo = request.form['photo']
     error = None
-
-    # this needs change, only the name will be gived by filepond
-    if 'photo' in request.files:
-      photo = request.files['photo']
-      if photo is not None and photo.filename != '':
-        if allowed_file(photo.filename):
-          unique_filename = str(uuid.uuid4())
-          photoname = secure_filename(unique_filename)
-          photo.save(os.path.join(UPLOAD_FOLDER, photoname))
-        else:
-          photoname = ''
-          error = 'Extension File not allowed'
-      else:
-        photoname = ''
-    else:
-      photoname = ''
+    
+    file_path_temp = "%s%s" % (UPLOAD_TEMP_FOLDER[:-1], photo)
+    if os.path.exists(file_path_temp) is False:
+      error = 'Error in file, try to make upload again.'
 
     if not title:
       error = 'Title is required.'
@@ -66,9 +53,11 @@ def create():
       db.execute(
         'INSERT INTO post (title, body, photo, author_id)'
         ' VALUES (?, ?, ?, ?)',
-        (title, body, photoname, g.user['id'])
+        (title, body, photo, g.user['id'])
       )
       db.commit()
+      file_path = "%s%s" % (UPLOAD_FOLDER[:-1], photo)
+      shutil.move(file_path_temp, file_path)
       return redirect(url_for('blog.index'))
   return render_template('blog/create.html.jinja')
 
@@ -103,7 +92,7 @@ def update(id):
     if 'photo' in request.files:
       photo = request.files['photo']
       if photo is not None and photo.filename != '':
-        if allowed_file(photo.filename):
+        if allowed_file(photo.filename, 'img'):
           photoname = secure_filename(photo.filename)
           photo.save(os.path.join(UPLOAD_FOLDER, photoname))
         else:

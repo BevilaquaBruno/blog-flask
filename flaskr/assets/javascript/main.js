@@ -1,10 +1,18 @@
 function init_filepond(field_id, file_list_id) {
   FilePond.registerPlugin(FilePondPluginImagePreview);
-  /*
   FilePond.setOptions({
-      server: ''
+    server: 'uploads/work'
   });
-  */
+  /*
+  {
+    url: ( (window.location.host == 'localhost:5000')?'http://':'https://' )+window.location.host,
+    process: '/uploads/process',
+    revert: '/uploads/revert',
+    restore: '/uploads/restore/',
+    load: '/uploads/load/',
+    fetch: '/uploads/fetch/'
+  }
+   */
   const el = document.getElementById(field_id);
   const pond = FilePond.create( el );
   let fl = document.getElementById(file_list_id).innerText;
