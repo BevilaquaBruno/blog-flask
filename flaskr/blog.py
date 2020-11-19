@@ -2,6 +2,7 @@ from flask import (
   Blueprint, flash, g, redirect, render_template, request, url_for
 )
 import os
+import uuid
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
 
@@ -39,11 +40,13 @@ def create():
     photo = None
     error = None
 
+    # this needs change, only the name will be gived by filepond
     if 'photo' in request.files:
       photo = request.files['photo']
       if photo is not None and photo.filename != '':
         if allowed_file(photo.filename):
-          photoname = secure_filename(photo.filename)
+          unique_filename = str(uuid.uuid4())
+          photoname = secure_filename(unique_filename)
           photo.save(os.path.join(UPLOAD_FOLDER, photoname))
         else:
           photoname = ''
@@ -96,6 +99,7 @@ def update(id):
     photo = None
     error = None
 
+    #this will be changed because of filepond
     if 'photo' in request.files:
       photo = request.files['photo']
       if photo is not None and photo.filename != '':

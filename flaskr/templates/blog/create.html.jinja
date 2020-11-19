@@ -1,10 +1,14 @@
 {% extends 'base.html.jinja' %}
 
 {% block header %}
-  <h1>{% block title %}New Post{% endblock %}</h1>
-{% endblock %}
+  <h1>{% block title %}New Post{% endblock title %}</h1>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/filepond.min.css') }}">
+  <script type="text/javascript" src="{{ url_for('static', filename='javascript/filepond.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', filename='blog_create.js') }}"></script>
+{% endblock header %}
 
 {% block content %}
+  <div id="file_list" style="display:none;">{{request.form['photo']}}</div>
   <form method="post" enctype="multipart/form-data">
     <label for="title">Title</label>
     <input name="title" id="title" value="{{ request.form['title'] }}" required>
@@ -13,4 +17,4 @@
     <input type="file" name="photo" id="photo" value="{{ request.form['photo'] }}" >
     <input type="submit" value="Save">
   </form>
-{% endblock %}
+{% endblock content %}
