@@ -86,22 +86,10 @@ def update(id):
     title = request.form['title']
     body = request.form['body']
     photo = None
+    if 'photo' in request.form:
+      photo = request.form['photo']
     error = None
-
-    #this will be changed because of filepond
-    if 'photo' in request.files:
-      photo = request.files['photo']
-      if photo is not None and photo.filename != '':
-        if allowed_file(photo.filename, 'img'):
-          photoname = secure_filename(photo.filename)
-          photo.save(os.path.join(UPLOAD_FOLDER, photoname))
-        else:
-          photoname = ''
-          error = 'Extension File not allowed'
-      else:
-        photoname = ''
-    else:
-      photoname = ''
+    # MAKE THE FILE UPLOAD HERE
 
     if not title:
       error = 'Title is required.'
@@ -111,8 +99,8 @@ def update(id):
     else:
       db = get_db()
       db.execute(
-        'UPDATE POST set title = ?, body = ?, photo = ? WHERE id = ?',
-        (title, body, photoname, id)
+        'UPDATE POST set title = ?, body = ? WHERE id = ?',
+        (title, body, id)
       )
       db.commit()
       return redirect(url_for('blog.index'))
@@ -120,7 +108,7 @@ def update(id):
   data = dict(post=post, img_path=UPLOAD_FOLDER)
   return render_template('blog/update.html.jinja', data=data)
 
-@bp.route('/<int:id>/delete', methods=('POST',))
+@bp.route('/<int:id>/delete', methods=('POST'))
 @login_required
 def delete(id):
   post = get_post(id)

@@ -1,9 +1,7 @@
 <!doctype html>
 <title>{% block title %}{% endblock title %} - Flaskr</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<script type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', jsfile='main.js') }}"></script>
 <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
-<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 <nav>
   <ul>
     {% if g.user %}
@@ -23,4 +21,7 @@
     <div class="flash">{{ message }}</div>
   {% endfor %}
   {% block content %}{% endblock content %}
+  <script defer type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', jsfile='main.js') }}"></script>
+  <script defer src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </section>

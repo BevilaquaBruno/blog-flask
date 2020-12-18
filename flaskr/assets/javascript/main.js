@@ -1,27 +1,24 @@
 function init_filepond(field_id, file_list_id) {
   FilePond.registerPlugin(FilePondPluginImagePreview);
+  let pre = (window.location.host == 'localhost:5000')?'http://':'https://';
   FilePond.setOptions({
-    server: 'uploads/work'
+    server: pre+window.location.host+'/uploads/work'
   });
-  /*
-  {
-    url: ( (window.location.host == 'localhost:5000')?'http://':'https://' )+window.location.host,
-    process: '/uploads/process',
-    revert: '/uploads/revert',
-    restore: '/uploads/restore/',
-    load: '/uploads/load/',
-    fetch: '/uploads/fetch/'
-  }
-   */
+
   const el = document.getElementById(field_id);
-  const pond = FilePond.create( el );
   let fl = document.getElementById(file_list_id).innerText;
-  file_list = remove_empty_spaces_array(fl.split(';'));
-  for (let i = 0; i < file_list.length; i++) {
-    const el = file_list[i];
-    let pre = (window.location.host == 'localhost:5000')?'http://':'https://';
-    pond.addFile(pre+window.location.host+'/uploads/'+el);
+  file_list_div = remove_empty_spaces_array(fl.split(';'));
+  let file_list = [];
+  if (file_list_div.length > 0 && ';' != fl) {
+    for (let i = 0; i < file_list_div.length; i++) {
+      const file = file_list_div[i];
+      file_list.push({ source: file, options: { type: "local" } });
+    }
   }
+  const pond = FilePond.create( el, {
+    files: file_list,
+    acceptedFileTypes: ['image/png', 'image/jpeg']
+  });
   return pond;
 }
 

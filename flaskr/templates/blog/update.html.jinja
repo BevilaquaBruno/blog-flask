@@ -2,28 +2,19 @@
 
 {% block header %}
   <h1>{% block title %}Edit "{{ data['post']['title'] }}"{% endblock %}</h1>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/filepond.min.css') }}">
+  <script type="text/javascript" src="{{ url_for('static', filename='javascript/filepond.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', jsfile='blog_update.js') }}"></script>
 {% endblock %}
 
 {% block content %}
+  <div style="display: none;" id="file_list">{{ request.form['photo'] or data['post']['photo'] }};</div>
   <form method="post" enctype="multipart/form-data">
     <label for="title">Title</label>
-    <input name="title" id="title"
-      value="{{ request.form['title'] or data['post']['title'] }}" required>
+    <input name="title" id="title" value="{{ request.form['title'] or data['post']['title'] }}" required>
     <label for="body">Body</label>
     <textarea name="body" id="body">{{ request.form['body'] or data['post']['body'] }}</textarea>
-      {% if request.form['photo'] %}
-        Actual File:
-        <img style="max-width: 100px;" src="{{ url_for('uploads.uploaded_file', filename= request.form['photo'] or data['post']['photo']) }}">
-        <span onclick="alert('Soon !')">Remover Foto</span>
-      {% else %}
-        {% if data['post']['photo'] %}
-          Actual File:
-          <img style="max-width: 100px;" src="{{ url_for('uploads.uploaded_file', filename= request.form['photo'] or data['post']['photo']) }}">
-          <span onclick="alert('Soon !')">Remover Foto</span>
-        {% else %}
-          <input type="file" name="photo" value="{{ data['img_path'] }} {{ request.form['photo'] or data['post']['photo'] }}" >
-        {% endif %}
-      {% endif %}
+    <input type="file" name="photo" class="filepond--input" id="photo">
     <input type="submit" value="Save">
   </form>
   <hr>
