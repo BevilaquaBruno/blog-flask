@@ -1,7 +1,6 @@
 window.onload = function(){
   let photo_pond = init_filepond('photo', 'file_list');
   document.querySelector('.filepond--root').addEventListener('FilePond:removefile', e => {
-    console.log(e.detail.file.filename);
     axios({
       method: 'DELETE',
       url: '/uploads/work',
