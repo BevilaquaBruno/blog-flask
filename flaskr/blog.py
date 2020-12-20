@@ -1,19 +1,17 @@
 from flask import (
   Blueprint, flash, g, redirect, render_template, request, url_for
 )
-import os
-import shutil
 from werkzeug.exceptions import abort
 from werkzeug.utils import secure_filename
-
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from flaskr.utils import (allowed_file)
+from flaskr.utils import (allowed_file, IMGS_EXTENSIONS)
+from flaskr.myConfig import (UPLOAD_FOLDER, UPLOAD_TEMP_FOLDER)
+
+import os
+import shutil
 
 bp = Blueprint('blog', __name__)
-
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'upload/.')
-UPLOAD_TEMP_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'upload/temp/.')
 
 @bp.route('/')
 def index():
@@ -56,8 +54,13 @@ def create():
         (title, body, photo, g.user['id'])
       )
       db.commit()
-      file_path = "%s%s" % (UPLOAD_FOLDER[:-1], photo)
-      shutil.move(file_path_temp, file_path)
+      if photo is not None:
+        if allowed_file(photo, 'img'):
+          file_path = "%s%s" % (UPLOAD_FOLDER[:-1], photo)
+          shutil.move(file_path_temp, file_path)
+        else:
+          exts = ', '.join(IMGS_EXTENSIONS)
+          flash("Extensão não permitida, são permitidas: " + exts)
       return redirect(url_for('blog.index'))
   return render_template('blog/create.html.jinja')
 
@@ -85,11 +88,25 @@ def update(id):
   if request.method == 'POST':
     title = request.form['title']
     body = request.form['body']
-    photo = None
+    photoname = None
     if 'photo' in request.form:
-      photo = request.form['photo']
+      photoname = request.form['photo']
     error = None
-    # MAKE THE FILE UPLOAD HERE
+    action_photo = None
+    photo = None
+    
+    if post['photo'] != '' and photoname is None:
+      action_photo = 'delete'
+      photo = None
+    elif post['photo'] != photoname:
+      action_photo = 'overwrite'
+      photo = photoname
+      if not allowed_file(photo, 'img'):
+        exts = ', '.join(IMGS_EXTENSIONS)
+        flash("Extensão não permitida, são permitidas: " + exts)
+    else:
+      action_photo = 'maintain'
+      photo = post['photo']
 
     if not title:
       error = 'Title is required.'
@@ -99,16 +116,26 @@ def update(id):
     else:
       db = get_db()
       db.execute(
-        'UPDATE POST set title = ?, body = ? WHERE id = ?',
-        (title, body, id)
+        'UPDATE POST set title = ?, body = ?, photo = ? WHERE id = ?',
+        (title, body, photo, id)
       )
       db.commit()
+      old_file_path = "%s%s" % (UPLOAD_FOLDER[:-1], post['photo'])
+      if action_photo == 'delete':
+        if(os.path.exists(old_file_path)):
+          os.remove(old_file_path)
+      elif action_photo == 'overwrite':
+        if(os.path.exists(old_file_path)):
+          os.remove(old_file_path)
+        file_path_temp = "%s%s" % (UPLOAD_TEMP_FOLDER[:-1], photo)
+        file_path = "%s%s" % (UPLOAD_FOLDER[:-1], photo)
+        shutil.move(file_path_temp, file_path)
       return redirect(url_for('blog.index'))
 
   data = dict(post=post, img_path=UPLOAD_FOLDER)
   return render_template('blog/update.html.jinja', data=data)
 
-@bp.route('/<int:id>/delete', methods=('POST'))
+@bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
   post = get_post(id)

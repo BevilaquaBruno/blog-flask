@@ -3,8 +3,6 @@
 {% block header %}
   <h1>{% block title %}New Post{% endblock title %}</h1>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/filepond.min.css') }}">
-  <script type="text/javascript" src="{{ url_for('static', filename='javascript/filepond.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', jsfile='blog_create.js') }}"></script>
 {% endblock header %}
 
 {% block content %}
@@ -17,4 +15,8 @@
     <input type="file" name="photo" id="photo" value="{{ request.form['photo'] }}" >
     <input type="submit" value="Save">
   </form>
+  <script defer src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+  <script defer src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+  <script defer type="text/javascript" src="{{ url_for('static', filename='javascript/filepond.min.js') }}"></script>
+  <script defer type="text/javascript" src="{{ url_for('uploads.uploaded_javascript', jsfile='blog_create.js') }}"></script>
 {% endblock content %}

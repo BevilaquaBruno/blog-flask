@@ -2,16 +2,17 @@ from flask import (
   Blueprint, send_from_directory, request, make_response
 )
 from werkzeug.utils import secure_filename
+from flaskr.utils import (allowed_file)
+from flaskr.myConfig import (
+  BLANK_FILE, JAVASCRIPT_FOLDER, UPLOAD_FOLDER, UPLOAD_TEMP_FOLDER
+)
+
 import os
 import uuid
 import json
-from flaskr.utils import (allowed_file)
 
 bp = Blueprint('uploads', __name__)
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'upload/.')
-UPLOAD_TEMP_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'upload/temp/.')
-JAVASCRIPT_FOLDER = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets/javascript/.')
 
 @bp.route('/uploads/img/', defaults={'filename': None})
 @bp.route('/uploads/img/<filename>')
@@ -19,9 +20,13 @@ def uploaded_file(filename):
   if filename is None:
     filename = 'blank.jpg'
   file_temp = "%s%s" % (UPLOAD_TEMP_FOLDER[:-1], filename)
+  file_main = "%s%s" % (UPLOAD_FOLDER[:-1], filename)
   if os.path.isfile(file_temp):
     return send_from_directory(UPLOAD_TEMP_FOLDER[:-1], filename)
-  return send_from_directory(UPLOAD_FOLDER[:-1], filename)
+  elif os.path.isfile(file_main):
+    return send_from_directory(UPLOAD_FOLDER[:-1], filename)
+  else:
+    return send_from_directory(UPLOAD_FOLDER[:-1], 'blank.jpg')
 
 @bp.route('/uploads/javascript/<jsfile>')
 def uploaded_javascript(jsfile):
@@ -46,7 +51,7 @@ def work():
       photoname = ''
   elif request.method == 'DELETE':
     file = json.loads(request.data.decode('utf-8'))['photo']
-    if file is 'blank.jpg':
+    if file == 'blank.jpg':
       return 'Are you kidding me?'
     file_path = "%s%s" % (UPLOAD_TEMP_FOLDER[:-1], file)
     if(not os.path.exists(file_path)):

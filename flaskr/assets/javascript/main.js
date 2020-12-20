@@ -1,5 +1,6 @@
 function init_filepond(field_id, file_list_id) {
   FilePond.registerPlugin(FilePondPluginImagePreview);
+  FilePond.registerPlugin(FilePondPluginFileValidateType);
   let pre = (window.location.host == 'localhost:5000')?'http://':'https://';
   FilePond.setOptions({
     server: pre+window.location.host+'/uploads/work'
@@ -12,12 +13,14 @@ function init_filepond(field_id, file_list_id) {
   if (file_list_div.length > 0 && ';' != fl) {
     for (let i = 0; i < file_list_div.length; i++) {
       const file = file_list_div[i];
-      file_list.push({ source: file, options: { type: "local" } });
+      if (file != 'None') {
+        file_list.push({ source: file, options: { type: "local" } });
+      }
     }
   }
   const pond = FilePond.create( el, {
     files: file_list,
-    acceptedFileTypes: ['image/png', 'image/jpeg']
+    acceptedFileTypes: ['image/png', 'image/jpeg', 'image/jpg']
   });
   return pond;
 }
